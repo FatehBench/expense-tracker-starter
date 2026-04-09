@@ -14,12 +14,32 @@ npm run preview  # preview production build
 
 ## Architecture
 
-Single-file React app — all state and UI lives in `src/App.jsx`. No routing, no external state management, no backend.
+React app split into four components. No routing, no external state management, no backend.
 
-**State in App.jsx:**
+**Component tree:**
+```
+App
+├── Summary
+├── TransactionForm
+└── TransactionList
+```
+
+**`src/App.jsx`** — root component, owns `transactions` state and passes it down.
 - `transactions` — array of `{ id, description, amount, type, category, date }` where `type` is `"income"` or `"expense"`
-- `description`, `amount`, `type`, `category` — controlled form inputs for adding a transaction
-- `filterType`, `filterCategory` — filter state for the transaction table
+- Passes `onAdd` callback to `TransactionForm` to append new transactions
+
+**`src/Summary.jsx`** — displays income, expenses, and balance cards.
+- Receives `transactions` and computes `totalIncome`, `totalExpenses`, `balance` internally
+
+**`src/TransactionForm.jsx`** — controlled form for adding a transaction.
+- Owns its own form state: `description`, `amount`, `type`, `category`
+- Calls `onAdd(transaction)` prop on submit; resets fields after
+
+**`src/TransactionList.jsx`** — filtered table of transactions.
+- Receives `transactions` as a prop
+- Owns its own filter state: `filterType`, `filterCategory`
+
+**Shared constant:** `categories` array is defined locally in both `TransactionForm` and `TransactionList` (no shared module — kept simple for a course project).
 
 **Known bugs (intentional — this is a course starter project):**
 - `amount` is stored as a string, so `totalIncome`/`totalExpenses` use string concatenation instead of numeric addition. Fix: parse `amount` to a float when creating a transaction or when computing totals.
